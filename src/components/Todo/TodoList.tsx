@@ -34,7 +34,7 @@ export default function TodoList() {
 
   return (
     <Paper elevation={3} sx={{ p: 2, maxWidth: 500, mx: 'auto' }}>
-      <Typography variant="h5" gutterBottom>Todo List</Typography>
+      <Typography variant="h5" gutterBottom>Todso List</Typography>
       <Box display="flex" mb={2}>
         <TextField
           fullWidth

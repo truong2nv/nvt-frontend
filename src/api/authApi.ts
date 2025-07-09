@@ -1,5 +1,5 @@
-// src/api/authApi.ts
-import { fetchClient } from './fetchClient';
+// src/api/axios/authApi.ts
+import axiosInstance from './axiosClient';
 
 export interface LoginRequest {
   email: string;
@@ -14,15 +14,23 @@ export interface RegisterRequest {
 }
 
 export const login = (data: LoginRequest) => {
-  return fetchClient('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
+  return axiosInstance.post('/auth/login', data);
 };
 
 export const register = (data: RegisterRequest) => {
-  return fetchClient('/auth/register', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
+  return axiosInstance.post('/auth/register', data);
+};
+
+export const refreshAccessToken = async (): Promise<string | null> => {
+  try {
+    const response = await axiosInstance.post('/auth/refresh', {
+      refreshToken: localStorage.getItem('refreshToken'),
+    });
+    const { accessToken, refreshToken } = response.data;
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    return accessToken;
+  } catch (error) {
+    return null;
+  }
 };

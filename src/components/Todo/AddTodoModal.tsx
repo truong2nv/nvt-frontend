@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -8,13 +7,13 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import CreateTodoForm from './TodoCreateForm';
 
-interface Props {
+type Props = {
   open: boolean;
   onClose: () => void;
   onAdd: (title: string) => void;
 }
 
-const AddTodoModal: React.FC<Props> = ({ open, onClose, onAdd }) => (
+const AddTodoModal = ({ open, onClose, onAdd } : Props) => (
   <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
     <DialogTitle>
       Add New Todo

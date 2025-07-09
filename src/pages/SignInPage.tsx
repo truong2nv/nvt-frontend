@@ -4,29 +4,42 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const SignInPage = () => {
-  const { login } = useAuth();
+  const { login, loading, error } = useAuth();
   const navigate = useNavigate();
   const [credentials, setCredentials] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
+  const [localError, setLocalError] = useState('');
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLocalError('');
     try {
-      await login(credentials.email, credentials.password);
+      const resultAction = await login(credentials.email, credentials.password);
+      if (resultAction.type.endsWith('/rejected')) {
+        setLocalError(
+        (resultAction as any).payload ||
+        (resultAction as any).error?.message ||
+        'Invalid username or password'
+      );
+        return;
+      }
       navigate('/');
-    } catch (err) {
-        console.log('Login error:', err);
-      setError('Invalid username or password');
+    } catch (err: any) {
+      setLocalError(
+        err?.response?.data?.message ||
+        err?.message ||
+        'Invalid username or password'
+      );
     }
   };
 
   return (
     <Box
       sx={{
-        minHeight: '100vh', // Dùng 100vh để đảm bảo full màn hình trình duyệt
+        minHeight: '100vh',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
@@ -38,13 +51,15 @@ const SignInPage = () => {
           Sign In
         </Typography>
         <form onSubmit={handleSubmit}>
-        <TextField
+          <TextField
             label="Email"
             name="email"
             fullWidth
             margin="normal"
             value={credentials.email}
             onChange={handleChange}
+            autoComplete="email"
+            disabled={loading}
           />
           <TextField
             label="Password"
@@ -54,11 +69,23 @@ const SignInPage = () => {
             margin="normal"
             value={credentials.password}
             onChange={handleChange}
+            autoComplete="current-password"
+            disabled={loading}
           />
-          {error && <Typography color="error">{error}</Typography>}
-        <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
-          Login
-        </Button>
+          {(localError || error) && (
+            <Typography color="error" mt={1}>
+              {localError || error}
+            </Typography>
+          )}
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{ mt: 2 }}
+            disabled={loading}
+          >
+            {loading ? 'Logging in...' : 'Login'}
+          </Button>
         </form>
       </Paper>
     </Box>
